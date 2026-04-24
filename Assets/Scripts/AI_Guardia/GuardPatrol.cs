@@ -29,6 +29,9 @@ public class GuardPatrol : MonoBehaviour
     public float chaseSpeed = 4.5f;
     public float losePlayerDistance = 16f;
 
+    [Header("Catch")]
+    public float catchDistance = 2.5f;
+
     [Header("Flashlight")]
     public Light flashlight;
     public AudioSource alertAudio;
@@ -202,6 +205,15 @@ public class GuardPatrol : MonoBehaviour
             alertAudio.Play();
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distanceToPlayer <= catchDistance)
+        {
+            if (GameFlowManager.Instance != null)
+            {
+                GameFlowManager.Instance.LoseByGuard();
+            }
+            return;
+        }
 
         if (distanceToPlayer > losePlayerDistance)
         {
