@@ -3,9 +3,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float walkSpeed = 5f;
-    public float sprintSpeed = 7.5f;
+    public float walkSpeed = 7f;
+    public float sprintSpeed = 12f;
     public float jumpForce = 7f;
+    public InputActionReference sprintAction;
 
     private Vector2 movementInput;
     private Rigidbody rb;
@@ -38,11 +39,6 @@ public class PlayerMovement : MonoBehaviour
         movementInput = data.Get<Vector2>();
     }
 
-    public void OnSprint(InputValue data)
-    {
-        isSprinting = data.isPressed;
-    }
-
     public void OnJump(InputValue data)
     {
         if (!data.isPressed) return;
@@ -53,6 +49,8 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        isSprinting = sprintAction.action.IsPressed();
+
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
         Vector3 direction = transform.right * movementInput.x + transform.forward * movementInput.y;
