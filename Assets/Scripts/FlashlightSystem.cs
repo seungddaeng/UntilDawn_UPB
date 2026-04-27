@@ -74,7 +74,7 @@ public class FlashlightSystem : MonoBehaviour
         if (flashlightOn && !alreadyWon)
         {
             alreadyWon = true;
-            // SceneManager.LoadScene(winSceneName);
+            SceneManager.LoadScene(winSceneName);
         }
     }
 
