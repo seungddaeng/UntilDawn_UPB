@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConversationTemplate
   conversationLines:
   - speakerName: Inge Marcelo
-    dialogue: Hola!!
+    dialogue: Hola!! Que haces tan tarde por aqui?
   - speakerName: Inge Marcelo
-    dialogue: Deberias it por el otro lado!
+    dialogue: Si buscas algo me parece haber visto cosas en DAE...
