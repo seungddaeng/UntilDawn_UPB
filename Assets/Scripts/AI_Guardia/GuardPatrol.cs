@@ -15,13 +15,10 @@ public class GuardPatrol : MonoBehaviour
     public Transform player;
     public Transform playerCamera;
 
-    // Si el jugador entra a este rango, lo detecta aunque esté atrás.
     public float proximityDetectionRange = 7f;
 
-    // Distancia máxima para detección frontal.
     public float visionDetectionRange = 12f;
 
-    // Ángulo del cono de visión.
     public float fieldOfView = 110f;
 
     [Header("Chase")]
@@ -42,7 +39,6 @@ public class GuardPatrol : MonoBehaviour
     private bool isWaiting = false;
     private bool isAlerted = false;
 
-    // Variables para la animación de vigilancia
     private bool isLookingAround = false;
     private float baseYRotation;
     private int lookDirection = 1;
@@ -72,20 +68,17 @@ public class GuardPatrol : MonoBehaviour
             PatrolMode();
     }
 
-    // Revisa si el jugador entra en el rango de detección.
     void CheckPlayerDetection()
     {
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
-        // Detección cercana: aunque esté detrás.
         if (distanceToPlayer <= proximityDetectionRange)
         {
             isAlerted = true;
             return;
         }
 
-        // Si está demasiado lejos, no lo detecta.
         if (distanceToPlayer > visionDetectionRange)
         {
             if (distanceToPlayer > losePlayerDistance)
@@ -94,7 +87,6 @@ public class GuardPatrol : MonoBehaviour
             return;
         }
 
-        // Detección frontal por cono de visión.
         Vector3 flatDirection = new Vector3(directionToPlayer.x, 0f, directionToPlayer.z);
         float angle = Vector3.Angle(transform.forward, flatDirection);
 
@@ -109,7 +101,6 @@ public class GuardPatrol : MonoBehaviour
         }
     }
 
-    // Patrullaje normal entre puntos.
     void PatrolMode()
     {
         agent.speed = patrolSpeed;
@@ -120,8 +111,6 @@ public class GuardPatrol : MonoBehaviour
         if (alertAudio != null && alertAudio.isPlaying)
             alertAudio.Stop();
 
-        // Si está en momento de vigilancia, no avanza:
-        // solo rota a los lados para revisar.
         if (isLookingAround)
         {
             LookAround();
@@ -158,8 +147,6 @@ public class GuardPatrol : MonoBehaviour
         }
     }
 
-    // Hace que el guardia mire a izquierda y derecha
-    // antes de continuar patrullando.
     void LookAround()
     {
         float targetAngle = baseYRotation + (lookAroundAngle * lookDirection);
@@ -170,21 +157,18 @@ public class GuardPatrol : MonoBehaviour
 
         if (Mathf.Abs(Mathf.DeltaAngle(newY, targetAngle)) < 1f)
         {
-            // Si ya miró a un lado, cambia al otro.
             if (lookDirection == 1)
             {
                 lookDirection = -1;
             }
             else
             {
-                // Cuando ya miró ambos lados, vuelve al centro y termina vigilancia.
                 transform.rotation = Quaternion.Euler(0f, baseYRotation, 0f);
                 isLookingAround = false;
             }
         }
     }
 
-    // Persecución del jugador.
     void ChaseMode()
     {
         isWaiting = false;
@@ -223,7 +207,6 @@ public class GuardPatrol : MonoBehaviour
         }
     }
 
-    // Dibuja rangos de detección en la escena.
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

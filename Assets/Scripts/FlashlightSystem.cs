@@ -83,7 +83,6 @@ public class FlashlightSystem : MonoBehaviour
         if (flashlightVisual != null)
         {
             flashlightVisual.SetActive(hasFlashlight);
-            //flashlightVisual.SetActive(false);
         }
 
         if (flashlightLight != null)
