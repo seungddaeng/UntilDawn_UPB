@@ -8,10 +8,17 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 7f;
     public InputActionReference sprintAction;
 
+    public AudioSource audioSource;
+    public AudioClip walkClip;
+    public AudioClip sprintClip;
+    public float stepRate = 0.4f;
+    public float sprintStepRate = 0.25f;
+
     private Vector2 movementInput;
     private Rigidbody rb;
     private bool isGrounded;
     private bool isSprinting;
+    private float stepTimer;
 
     void Start()
     {
@@ -61,5 +68,28 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity.y,
             direction.z * currentSpeed
         );
+
+        HandleFootsteps(isSprinting, direction);
+    }
+
+    private void HandleFootsteps(bool isSprinting, Vector3 direction)
+    {
+        bool isMoving = direction.magnitude > 0.1f && isGrounded;
+
+        if (isMoving)
+        {
+            stepTimer -= Time.fixedDeltaTime;
+
+            if (stepTimer <= 0f)
+            {
+                AudioClip clipToPlay = isSprinting ? sprintClip : walkClip;
+                audioSource.PlayOneShot(clipToPlay);
+                stepTimer = isSprinting ? sprintStepRate : stepRate;
+            }
+        }
+        else
+        {
+            stepTimer = 0f;
+        }
     }
 }

@@ -9,9 +9,15 @@ public class NPCInteractable : MonoBehaviour
     public LayerMask npcLayerMask;
 
     private Camera playerCamera;
+    private Transform playerTransform;
     private bool isLookedAt = false;
 
     private NPCDialogue dialogue;
+
+    private Quaternion originalRotation;
+    private bool isInteracting = false;
+
+    [SerializeField] float returnRotationSpeed = 3f;
 
     private void Awake()
     {
@@ -20,23 +26,40 @@ public class NPCInteractable : MonoBehaviour
 
     public void Interact()
     {
+        isInteracting = true;
+        LookAtPlayer();
         dialogue?.Interact();
     }
 
     private void Start()
     {
         playerCamera = Camera.main;
+        playerTransform = playerCamera.transform;
         interactText.gameObject.SetActive(false);
+        originalRotation = transform.rotation;
     }
 
     private void Update()
     {
-        Debug.DrawRay(
-        playerCamera.transform.position,
-        playerCamera.transform.forward * lookRange,
-        Color.red
-        );
         CheckIfPlayerIsLooking();
+        if (!isInteracting)
+        {
+            ReturnToOriginalRotation();
+        }
+    }
+
+    public void LookAtPlayer()
+    {
+        if (playerTransform == null) return;
+
+        Vector3 direction = playerTransform.position - transform.position;
+        direction.y = 0f;
+
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = targetRotation;
+        }
     }
 
     void CheckIfPlayerIsLooking()
@@ -68,7 +91,17 @@ public class NPCInteractable : MonoBehaviour
         {
             isLookedAt = false;
             interactText.gameObject.SetActive(false);
+            isInteracting = false;
         }
+    }
+
+    void ReturnToOriginalRotation()
+    {
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            originalRotation,
+            returnRotationSpeed * Time.deltaTime
+        );
     }
 
     public bool CanInteract()

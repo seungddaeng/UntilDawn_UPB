@@ -255,7 +255,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 179149644}
-  - component: {fileID: 179149643}
+  - component: {fileID: 179149645}
   m_Layer: 0
   m_Name: GameOverManager
   m_TagString: Untagged
@@ -263,20 +263,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &179149643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 179149642}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d74358f998d5974596e74ef5e1963b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameOverController
-  gameSceneName: SampleScene
-  menuSceneName: MainMenu
 --- !u!4 &179149644
 Transform:
   m_ObjectHideFlags: 0
@@ -292,6 +278,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &179149645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179149642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d74358f998d5974596e74ef5e1963b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverController
+  gameSceneName: SampleScene
+  menuSceneName: MainMenu
 --- !u!1 &290320883
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 179149643}
+      - m_Target: {fileID: 179149645}
         m_TargetAssemblyTypeName: GameOverController, Assembly-CSharp
         m_MethodName: BackToMenu
         m_Mode: 1
@@ -751,7 +751,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 179149643}
+      - m_Target: {fileID: 179149645}
         m_TargetAssemblyTypeName: GameOverController, Assembly-CSharp
         m_MethodName: Retry
         m_Mode: 1

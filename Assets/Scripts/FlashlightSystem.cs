@@ -15,7 +15,7 @@ public class FlashlightSystem : MonoBehaviour
     public bool flashlightOn = false;
 
     [Header("Win")]
-    public string winSceneName = "WinScreen";
+    public string winCinematicName = "WinCinematic";
     private bool alreadyWon = false;
 
     private void Start()
@@ -74,7 +74,7 @@ public class FlashlightSystem : MonoBehaviour
         if (flashlightOn && !alreadyWon)
         {
             alreadyWon = true;
-            SceneManager.LoadScene(winSceneName);
+            SceneManager.LoadScene(winCinematicName);
         }
     }
 
