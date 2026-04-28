@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd0208b764af49c40bd75ee84370dffe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoSceneLoader
-  nextSceneName: SampleScene
+  nextSceneName: PrincipalScene
   delay: 37
 --- !u!4 &127886750
 Transform:

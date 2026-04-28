@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/IntroCinematic.unity
     guid: 7fa63b7cad8894e4ba42507fcac721ca
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/PrincipalScene.unity
     guid: 35bedf045f82770428fcb92fe9cc12b6
   - enabled: 1
     path: Assets/Scenes/LoseCinematic.unity
