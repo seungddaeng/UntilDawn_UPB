@@ -3,39 +3,83 @@ using UnityEngine.InputSystem;
 
 public class FlashlightPickup : MonoBehaviour
 {
+    [Header("Configuración de interacción")]
+    public InputActionReference interactAction;
+    public string interactionMessage = "Presiona [E] para recoger la linterna";
+    public string collectedMessage = "Linterna conseguida";
+
     private bool playerInRange = false;
+    private FlashlightSystem playerFlashlight;
+
+    private void OnEnable()
+    {
+        if (interactAction != null)
+        {
+            interactAction.action.Enable();
+        }
+    }
 
     private void Update()
     {
-        if (playerInRange && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        if (!playerInRange || interactAction == null)
         {
-            FlashlightSystem playerFlashlight = FindAnyObjectByType<FlashlightSystem>();
+            return;
+        }
 
-            if (playerFlashlight != null)
-            {
-                playerFlashlight.GiveFlashlight();
-                UIMessageManager.Instance?.ShowMessage("¡Linterna conseguida!", 2f);
-                UIMessageManager.Instance?.SetBottomInstruction("Clic izquierdo: encender/apagar");
-            }
-
-            Destroy(gameObject);
+        if (interactAction.action.WasPressedThisFrame())
+        {
+            CollectFlashlight();
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
         {
-            playerInRange = true;
-            UIMessageManager.Instance?.ShowMessage("Presiona [E] para recoger la linterna", 2f);
+            return;
+        }
+
+        playerInRange = true;
+        playerFlashlight = other.GetComponentInParent<FlashlightSystem>();
+
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.SetBottomInstruction(interactionMessage);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
         {
-            playerInRange = false;
+            return;
         }
+
+        playerInRange = false;
+        playerFlashlight = null;
+
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.ClearBottomInstruction();
+        }
+    }
+
+    private void CollectFlashlight()
+    {
+        if (playerFlashlight == null)
+        {
+            Debug.LogWarning("No se encontró FlashlightSystem en el Player.");
+            return;
+        }
+
+        playerFlashlight.GiveFlashlight();
+
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.ShowMessage(collectedMessage, 2f);
+            UIMessageManager.Instance.ClearBottomInstruction();
+        }
+
+        Destroy(gameObject);
     }
 }

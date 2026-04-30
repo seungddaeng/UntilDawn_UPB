@@ -1,29 +1,50 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class FlashlightSystem : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Referencias de linterna")]
     public GameObject flashlightVisual;
-    public Light flashlightLight;
-    public AudioSource clickAudio;
+    public GameObject flashlightLight;
 
-    [Header("State")]
-    public bool hasFlashlight = false;
-    public bool hasBattery = false;
-    public bool flashlightOn = false;
+    [Header("UI de batería")]
+    public BatteryUI batteryUI;
 
-    [Header("Win")]
-    public string winCinematicName = "WinCinematic";
-    private bool alreadyWon = false;
+    [Header("Audio")]
+    public AudioSource flashlightClickAudio;
+
+    [Header("Configuración de batería")]
+    public int maxBatteries = 3;
+    public int currentBatteries = 0;
+    public float secondsPerBattery = 10f;
+
+    private bool hasFlashlight = false;
+    private bool flashlightOn = false;
+    private float batteryTimer = 0f;
+    private Light flashlightLightComponent;
+
+    private void Awake()
+    {
+        if (flashlightLight != null)
+        {
+            flashlightLightComponent = flashlightLight.GetComponent<Light>();
+
+            if (flashlightLightComponent == null)
+            {
+                flashlightLightComponent = flashlightLight.GetComponentInChildren<Light>();
+            }
+        }
+    }
 
     private void Start()
     {
+        currentBatteries = Mathf.Clamp(currentBatteries, 0, maxBatteries);
         hasFlashlight = false;
-        hasBattery = false;
         flashlightOn = false;
+        batteryTimer = 0f;
+
         UpdateFlashlightState();
+        UpdateBatteryUI();
     }
 
     private void Update()
@@ -32,65 +53,141 @@ public class FlashlightSystem : MonoBehaviour
         {
             TryToggleFlashlight();
         }
+
+        if (flashlightOn && hasFlashlight && currentBatteries > 0)
+        {
+            DrainBattery();
+        }
     }
 
     public void GiveFlashlight()
     {
-        Debug.Log("Linterna recogida");
         hasFlashlight = true;
         flashlightOn = false;
+        batteryTimer = 0f;
+
         UpdateFlashlightState();
+
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.ShowMessage("Linterna conseguida. Busca las 3 baterías.", 3f);
+            UIMessageManager.Instance.SetBottomInstruction("Busca las 3 baterías para cargar la linterna.");
+        }
     }
 
     public void GiveBattery()
     {
-        Debug.Log("Batería recogida");
-        hasBattery = true;
+        if (currentBatteries >= maxBatteries)
+        {
+            if (UIMessageManager.Instance != null)
+            {
+                UIMessageManager.Instance.ShowMessage("La linterna ya tiene la carga máxima.", 2f);
+            }
+
+            return;
+        }
+
+        currentBatteries++;
+        batteryTimer = 0f;
+
+        UpdateBatteryUI();
+
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.ShowMessage("Batería conseguida: " + currentBatteries + "/" + maxBatteries, 2f);
+        }
+
+        if (currentBatteries == maxBatteries && UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.SetBottomInstruction("Linterna cargada. Usa click izquierdo para encenderla.");
+        }
     }
 
-    void TryToggleFlashlight()
+    private void TryToggleFlashlight()
     {
-        Debug.Log("Intentando usar linterna");
-        Debug.Log("hasFlashlight: " + hasFlashlight);
-        Debug.Log("hasBattery: " + hasBattery);
-
         if (!hasFlashlight)
-            return;
-
-        if (!hasBattery)
         {
-            UIMessageManager.Instance?.ShowMessage("¡Sin batería! Consigue baterías", 2.5f);
+            return;
+        }
+
+        if (currentBatteries <= 0)
+        {
+            flashlightOn = false;
+            batteryTimer = 0f;
+            UpdateFlashlightState();
+
+            if (UIMessageManager.Instance != null)
+            {
+                UIMessageManager.Instance.ShowMessage("Sin batería. Busca baterías para usar la linterna.", 2f);
+            }
+
             return;
         }
 
         flashlightOn = !flashlightOn;
-        UpdateFlashlightState();
+        batteryTimer = 0f;
 
-        Debug.Log("flashlightOn: " + flashlightOn);
-
-        if (clickAudio != null)
-            clickAudio.Play();
-
-        if (flashlightOn && !alreadyWon)
+        if (flashlightClickAudio != null)
         {
-            alreadyWon = true;
-            SceneManager.LoadScene(winCinematicName);
+            flashlightClickAudio.Play();
+        }
+
+        UpdateFlashlightState();
+    }
+
+    private void DrainBattery()
+    {
+        batteryTimer += Time.deltaTime;
+
+        if (batteryTimer < secondsPerBattery)
+        {
+            return;
+        }
+
+        batteryTimer = 0f;
+        currentBatteries--;
+        currentBatteries = Mathf.Clamp(currentBatteries, 0, maxBatteries);
+
+        UpdateBatteryUI();
+
+        if (currentBatteries <= 0)
+        {
+            flashlightOn = false;
+            UpdateFlashlightState();
+
+            if (UIMessageManager.Instance != null)
+            {
+                UIMessageManager.Instance.ShowMessage("La linterna se quedó sin batería.", 2f);
+            }
         }
     }
 
-    void UpdateFlashlightState()
+    private void UpdateFlashlightState()
     {
+        bool shouldShowVisual = hasFlashlight;
+        bool shouldTurnLightOn = hasFlashlight && flashlightOn && currentBatteries > 0;
+
         if (flashlightVisual != null)
         {
-            flashlightVisual.SetActive(hasFlashlight);
+            flashlightVisual.SetActive(shouldShowVisual);
         }
 
         if (flashlightLight != null)
         {
-            bool shouldLightBeOn = hasFlashlight && flashlightOn && hasBattery;
+            flashlightLight.SetActive(shouldTurnLightOn);
+        }
 
-            flashlightLight.gameObject.SetActive(shouldLightBeOn);
-            flashlightLight.enabled = shouldLightBeOn;
+        if (flashlightLightComponent != null)
+        {
+            flashlightLightComponent.enabled = shouldTurnLightOn;
+        }
+    }
+
+    private void UpdateBatteryUI()
+    {
+        if (batteryUI != null)
+        {
+            batteryUI.UpdateBatteryUI(currentBatteries);
         }
     }
 }
