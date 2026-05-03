@@ -121,6 +121,11 @@ public class FlashlightSystem : MonoBehaviour
                 UIMessageManager.Instance.ShowMessage("Sin batería. Busca baterías para usar la linterna.", 2f);
             }
 
+            if (GameQuestManager.Instance != null)
+            {
+                GameQuestManager.Instance.OnTriedFlashlightWithoutBattery();
+            }
+
             return;
         }
 

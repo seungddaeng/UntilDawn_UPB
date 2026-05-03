@@ -10,6 +10,10 @@ public class DoorInteraction_ : MonoBehaviour
     private Quaternion _openRotation;
     private bool _moving = false;
 
+    [Header("Configuración de llave")]
+    public bool requiresKey = false;
+    public string lockedMessage = "No tienes ninguna llave.";
+
     void Start()
     {
         Transform pivot = transform.parent;

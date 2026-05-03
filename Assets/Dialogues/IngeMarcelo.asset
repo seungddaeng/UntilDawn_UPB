@@ -16,4 +16,8 @@ MonoBehaviour:
   - speakerName: Inge Marcelo
     dialogue: Hola!! Que haces tan tarde por aqui?
   - speakerName: Inge Marcelo
-    dialogue: Si buscas algo me parece haber visto cosas en DAE...
+    dialogue: "Bueno, te ayudar\xE9, pero no puedes decirle a nadie."
+  - speakerName: Inge Marcelo
+    dialogue: "Lo primero ser\xE1 encontrar algo para que puedas ver mejor."
+  - speakerName: Inge Marcelo
+    dialogue: Busca la linterna, pero cuidado con los guardias.
