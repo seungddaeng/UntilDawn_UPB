@@ -1,19 +1,43 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class NPCDialogue : MonoBehaviour
 {
     [SerializeField] private DialogueManager dialogueManager;
-    [SerializeField] private ConversationTemplate conversation;
+    [SerializeField] private List<ConversationTemplate> conversations;
+
+    private int currentConversationIndex = 0;
 
     public void Interact()
     {
         if (!dialogueManager.IsDialogueActive)
         {
-            dialogueManager.GetConversation(conversation);
+            StartConversation();
         }
         else
         {
             dialogueManager.NextLine();
         }
+    }
+
+    void StartConversation()
+    {
+        if (conversations.Count == 0) return;
+
+        dialogueManager.GetConversation(conversations[currentConversationIndex]);
+        currentConversationIndex++;
+
+        if (currentConversationIndex >= conversations.Count)
+        {
+            currentConversationIndex = conversations.Count - 1;
+        }
+    }
+
+    public void StartConversationByIndex(int index)
+    {
+        if (dialogueManager.IsDialogueActive) return;
+        if (index < 0 || index >= conversations.Count) return;
+
+        dialogueManager.GetConversation(conversations[index]);
     }
 }
