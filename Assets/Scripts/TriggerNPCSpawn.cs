@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TriggerNPCSpawn : MonoBehaviour
 {
-    public AlexisScript alexis;
+    public Alexis alexis;
     public Transform spawnPoint;
 
     private void OnTriggerEnter(Collider other)
@@ -10,7 +10,7 @@ public class TriggerNPCSpawn : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             alexis.transform.position = spawnPoint.position;
-            alexis.UpdateVisibility();
+            alexis.AppearAndStartRoute();
             StoryTimeManager.Instance.TriggerDawn();
 
             Destroy(gameObject);
