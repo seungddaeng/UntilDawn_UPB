@@ -19,38 +19,72 @@ public class NPCInteractable : MonoBehaviour
 
     [SerializeField] float returnRotationSpeed = 3f;
 
+    [Header("Misión")]
+    public bool isMarceloQuestNpc = false;
+
+    [Header("Control de mensaje")]
+    public float hidePromptAfterInteractTime = 4f;
+    private float hidePromptUntil = 0f;
+
     private void Awake()
     {
         dialogue = GetComponent<NPCDialogue>();
     }
 
-    public void Interact()
-    {
-        isInteracting = true;
-        LookAtPlayer();
-        dialogue?.Interact();
-    }
-
     private void Start()
     {
         playerCamera = Camera.main;
-        playerTransform = playerCamera.transform;
-        interactText.gameObject.SetActive(false);
+
+        if (playerCamera != null)
+        {
+            playerTransform = playerCamera.transform;
+        }
+
+        if (interactText != null)
+        {
+            interactText.gameObject.SetActive(false);
+        }
+
         originalRotation = transform.rotation;
     }
 
     private void Update()
     {
         CheckIfPlayerIsLooking();
+
         if (!isInteracting)
         {
             ReturnToOriginalRotation();
         }
     }
 
+    public void Interact()
+    {
+        isInteracting = true;
+        hidePromptUntil = Time.time + hidePromptAfterInteractTime;
+
+        if (interactText != null)
+        {
+            interactText.gameObject.SetActive(false);
+        }
+
+        LookAtPlayer();
+
+        if (isMarceloQuestNpc && GameQuestManager.Instance != null)
+        {
+            GameQuestManager.Instance.OnMarceloInteracted();
+            return;
+        }
+
+        dialogue?.Interact();
+    }
+
     public void LookAtPlayer()
     {
-        if (playerTransform == null) return;
+        if (playerTransform == null)
+        {
+            return;
+        }
 
         Vector3 direction = playerTransform.position - transform.position;
         direction.y = 0f;
@@ -64,7 +98,10 @@ public class NPCInteractable : MonoBehaviour
 
     void CheckIfPlayerIsLooking()
     {
-        if (playerCamera == null) return;
+        if (playerCamera == null || interactText == null)
+        {
+            return;
+        }
 
         Ray ray = new Ray(
             playerCamera.transform.position,
@@ -77,22 +114,28 @@ public class NPCInteractable : MonoBehaviour
 
             if (npc != null && npc == this)
             {
-                if (!isLookedAt)
+                isLookedAt = true;
+
+                bool canShowPrompt = Time.time >= hidePromptUntil;
+
+                if (isMarceloQuestNpc && GameQuestManager.Instance != null)
                 {
-                    isLookedAt = true;
-                    interactText.gameObject.SetActive(true);
-                    Debug.Log("Player is looking at NPC");
+                    GameQuestManager.QuestStep step = GameQuestManager.Instance.currentStep;
+
+                    canShowPrompt =
+                        step == GameQuestManager.QuestStep.FindMarceloFirst ||
+                        step == GameQuestManager.QuestStep.ReturnToMarceloSecond ||
+                        step == GameQuestManager.QuestStep.ReturnToMarceloThird;
                 }
+
+                interactText.gameObject.SetActive(canShowPrompt);
                 return;
             }
         }
 
-        if (isLookedAt)
-        {
-            isLookedAt = false;
-            interactText.gameObject.SetActive(false);
-            isInteracting = false;
-        }
+        isLookedAt = false;
+        isInteracting = false;
+        interactText.gameObject.SetActive(false);
     }
 
     void ReturnToOriginalRotation()
@@ -106,6 +149,20 @@ public class NPCInteractable : MonoBehaviour
 
     public bool CanInteract()
     {
-        return isLookedAt;
+        if (!isLookedAt || Time.time < hidePromptUntil)
+        {
+            return false;
+        }
+
+        if (isMarceloQuestNpc && GameQuestManager.Instance != null)
+        {
+            GameQuestManager.QuestStep step = GameQuestManager.Instance.currentStep;
+
+            return step == GameQuestManager.QuestStep.FindMarceloFirst ||
+                   step == GameQuestManager.QuestStep.ReturnToMarceloSecond ||
+                   step == GameQuestManager.QuestStep.ReturnToMarceloThird;
+        }
+
+        return true;
     }
 }

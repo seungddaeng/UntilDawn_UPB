@@ -4,59 +4,68 @@ using UnityEngine.InputSystem;
 public abstract class PickupItem : MonoBehaviour
 {
     [Header("Configuración de interacción")]
-    public InputActionReference interactAction;
     public string interactionMessage = "Presiona [E] para recoger";
     public string collectedMessage = "Objeto recogido";
 
     protected bool playerInRange = false;
     protected bool collected = false;
-    protected GameObject playerObject;
+
     protected FlashlightSystem playerFlashlight;
 
-    protected virtual void OnEnable()
+    private void Update()
     {
-        if (interactAction != null)
+        if (!playerInRange || collected)
         {
-            interactAction.action.Enable();
+            return;
+        }
+
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            Collect();
         }
     }
 
-    protected virtual void Update()
+    private void OnTriggerEnter(Collider other)
     {
         if (collected)
         {
             return;
         }
 
-        if (!playerInRange || interactAction == null)
-        {
-            return;
-        }
-
-        if (interactAction.action.WasPressedThisFrame())
-        {
-            Collect();
-        }
-    }
-
-    protected virtual void OnTriggerEnter(Collider other)
-    {
         if (!other.CompareTag("Player"))
         {
             return;
         }
 
         playerInRange = true;
-        playerObject = other.gameObject;
         playerFlashlight = other.GetComponentInParent<FlashlightSystem>();
 
-        if (UIMessageManager.Instance != null)
-        {
-            UIMessageManager.Instance.SetBottomInstruction(interactionMessage);
-        }
+        ShowInteractionMessage();
     }
 
-    protected virtual void OnTriggerExit(Collider other)
+    private void OnTriggerStay(Collider other)
+    {
+        if (collected)
+        {
+            return;
+        }
+
+        if (!other.CompareTag("Player"))
+        {
+            return;
+        }
+
+        playerInRange = true;
+
+        if (playerFlashlight == null)
+        {
+            playerFlashlight = other.GetComponentInParent<FlashlightSystem>();
+        }
+
+        ShowInteractionMessage();
+    }
+
+    private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player"))
         {
@@ -64,8 +73,6 @@ public abstract class PickupItem : MonoBehaviour
         }
 
         playerInRange = false;
-        playerObject = null;
-        playerFlashlight = null;
 
         if (UIMessageManager.Instance != null)
         {
@@ -73,19 +80,27 @@ public abstract class PickupItem : MonoBehaviour
         }
     }
 
+    private void ShowInteractionMessage()
+    {
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.SetBottomInstruction(interactionMessage);
+        }
+    }
+
     private void Collect()
     {
         collected = true;
 
-        OnCollected();
-
         if (UIMessageManager.Instance != null)
         {
-            UIMessageManager.Instance.ShowMessage(collectedMessage, 2f);
             UIMessageManager.Instance.ClearBottomInstruction();
+            UIMessageManager.Instance.ShowMessage(collectedMessage, 2f);
         }
 
-        Destroy(gameObject);
+        OnCollected();
+
+        gameObject.SetActive(false);
     }
 
     protected abstract void OnCollected();

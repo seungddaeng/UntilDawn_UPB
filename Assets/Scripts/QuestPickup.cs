@@ -6,7 +6,8 @@ public class QuestPickup : PickupItem
     {
         Flashlight,
         Battery,
-        Key
+        Key,
+        Exam
     }
 
     [Header("Tipo de objeto")]
@@ -30,17 +31,19 @@ public class QuestPickup : PickupItem
             case PickupType.Key:
                 CollectKey();
                 break;
+
+            case PickupType.Exam:
+                CollectExam();
+                break;
         }
     }
+
     private void CollectFlashlight()
     {
-        if (playerFlashlight == null)
+        if (playerFlashlight != null)
         {
-            Debug.LogWarning("No se encontró FlashlightSystem en el Player.");
-            return;
+            playerFlashlight.GiveFlashlight();
         }
-
-        playerFlashlight.GiveFlashlight();
 
         if (GameQuestManager.Instance != null)
         {
@@ -52,13 +55,10 @@ public class QuestPickup : PickupItem
 
     private void CollectBattery()
     {
-        if (playerFlashlight == null)
+        if (playerFlashlight != null)
         {
-            Debug.LogWarning("No se encontró FlashlightSystem en el Player.");
-            return;
+            playerFlashlight.GiveBattery();
         }
-
-        playerFlashlight.GiveBattery();
 
         if (GameQuestManager.Instance != null)
         {
@@ -81,5 +81,15 @@ public class QuestPickup : PickupItem
         }
 
         Debug.Log("Llave recogida");
+    }
+
+    private void CollectExam()
+    {
+        if (GameQuestManager.Instance != null)
+        {
+            GameQuestManager.Instance.OnExamCollected();
+        }
+
+        Debug.Log("Examen recogido");
     }
 }

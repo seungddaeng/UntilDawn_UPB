@@ -43,6 +43,8 @@ public class GuardPatrol : MonoBehaviour
     private float baseYRotation;
     private int lookDirection = 1;
 
+    private bool finalChaseMode = false;
+
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -183,7 +185,7 @@ public class GuardPatrol : MonoBehaviour
         transform.LookAt(target);
 
         if (flashlight != null)
-            flashlight.enabled = true;
+            flashlight.enabled = !finalChaseMode;
 
         if (alertAudio != null && !alertAudio.isPlaying)
             alertAudio.Play();
@@ -199,7 +201,7 @@ public class GuardPatrol : MonoBehaviour
             return;
         }
 
-        if (distanceToPlayer > losePlayerDistance)
+        if (!finalChaseMode && distanceToPlayer > losePlayerDistance)
         {
             isAlerted = false;
             agent.speed = patrolSpeed;
@@ -222,4 +224,28 @@ public class GuardPatrol : MonoBehaviour
         Gizmos.DrawRay(transform.position, left * visionDetectionRange);
         Gizmos.DrawRay(transform.position, right * visionDetectionRange);
     }
+
+    public void ForceFinalChase(float newChaseSpeed)
+    {
+        finalChaseMode = true;
+        isAlerted = true;
+
+        chaseSpeed = newChaseSpeed;
+        losePlayerDistance = 999f;
+        proximityDetectionRange = 999f;
+        visionDetectionRange = 999f;
+
+        if (flashlight != null)
+        {
+            flashlight.enabled = false;
+        }
+
+        if (agent != null && player != null)
+        {
+            agent.isStopped = false;
+            agent.speed = chaseSpeed;
+            agent.SetDestination(player.position);
+        }
+    }
+
 }

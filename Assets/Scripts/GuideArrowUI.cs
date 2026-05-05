@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GuideArrowUI : MonoBehaviour
 {
@@ -9,9 +10,12 @@ public class GuideArrowUI : MonoBehaviour
 
     [Header("Configuración")]
     public float edgePadding = 80f;
-    public float hideDistance = 3f;
+    public float hideDistance = 1.2f;
 
-    private void Start()
+    private Image arrowImage;
+    private float hiddenUntil = 0f;
+
+    private void Awake()
     {
         if (arrowRect == null)
         {
@@ -22,13 +26,31 @@ public class GuideArrowUI : MonoBehaviour
         {
             playerCamera = Camera.main;
         }
+
+        arrowImage = GetComponent<Image>();
     }
 
     private void Update()
     {
-        if (target == null || playerCamera == null || arrowRect == null)
+        if (arrowRect == null)
         {
-            arrowRect.gameObject.SetActive(false);
+            return;
+        }
+
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
+
+        if (Time.time < hiddenUntil)
+        {
+            SetVisible(false);
+            return;
+        }
+
+        if (target == null || playerCamera == null)
+        {
+            SetVisible(false);
             return;
         }
 
@@ -36,11 +58,11 @@ public class GuideArrowUI : MonoBehaviour
 
         if (distance <= hideDistance)
         {
-            arrowRect.gameObject.SetActive(false);
+            SetVisible(false);
             return;
         }
 
-        arrowRect.gameObject.SetActive(true);
+        SetVisible(true);
 
         Vector3 screenPosition = playerCamera.WorldToScreenPoint(target.position);
         Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
@@ -51,6 +73,12 @@ public class GuideArrowUI : MonoBehaviour
         }
 
         Vector3 direction = (screenPosition - screenCenter).normalized;
+
+        if (direction == Vector3.zero)
+        {
+            SetVisible(false);
+            return;
+        }
 
         Vector3 clampedPosition = screenCenter + direction * 220f;
 
@@ -66,5 +94,26 @@ public class GuideArrowUI : MonoBehaviour
     public void SetTarget(Transform newTarget)
     {
         target = newTarget;
+
+        if (playerCamera == null)
+        {
+            playerCamera = Camera.main;
+        }
+
+        SetVisible(newTarget != null);
+    }
+
+    public void HideTemporarily(float seconds)
+    {
+        hiddenUntil = Time.time + seconds;
+        SetVisible(false);
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (arrowImage != null)
+        {
+            arrowImage.enabled = visible;
+        }
     }
 }

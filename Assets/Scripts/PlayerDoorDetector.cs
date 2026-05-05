@@ -4,40 +4,75 @@ public class PlayerDoorDetector : MonoBehaviour
 {
     [SerializeField] float interactRange = 5f;
 
-    public void OnOpenDoor()
+    private DoorInteraction_ currentDoor;
+
+    private void Update()
     {
+        DetectDoorForPrompt();
+    }
+
+    private void DetectDoorForPrompt()
+    {
+        currentDoor = null;
+
+        if (Camera.main == null)
+        {
+            return;
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
-        Debug.DrawRay(ray.origin, ray.direction * interactRange, Color.red, 3f);
-
         RaycastHit[] hits = Physics.RaycastAll(ray, interactRange);
-
-        Debug.Log("Objetos golpeados: " + hits.Length);
 
         foreach (RaycastHit hit in hits)
         {
-            Debug.Log("  → " + hit.collider.gameObject.name);
-
             DoorInteraction_ door = hit.collider.GetComponentInParent<DoorInteraction_>();
 
             if (door != null)
             {
-                // Solo bloquea puertas que estén marcadas como "requiresKey".
-                if (door.requiresKey && GameQuestManager.Instance != null && !GameQuestManager.Instance.hasKeys)
-                {
-                    if (UIMessageManager.Instance != null)
-                    {
-                        UIMessageManager.Instance.ShowMessage(door.lockedMessage, 2f);
-                    }
+                currentDoor = door;
 
-                    GameQuestManager.Instance.PointToMarcelo();
-                    return;
+                if (UIMessageManager.Instance != null)
+                {
+                    UIMessageManager.Instance.SetBottomInstruction("Presiona [R] para abrir/cerrar");
                 }
 
-                door.ToggleDoor();
                 return;
             }
         }
 
-        Debug.Log("Ningún objeto tenía DoorInteraction_");
+        if (UIMessageManager.Instance != null)
+        {
+            UIMessageManager.Instance.ClearBottomInstruction();
+        }
+    }
+
+    public void OnOpenDoor()
+    {
+        if (currentDoor == null)
+        {
+            DetectDoorForPrompt();
+        }
+
+        if (currentDoor == null)
+        {
+            return;
+        }
+
+        if (currentDoor.requiresKey && GameQuestManager.Instance != null && !GameQuestManager.Instance.hasKeys)
+        {
+            currentDoor.PlayLockedSound();
+
+            if (UIMessageManager.Instance != null)
+            {
+                UIMessageManager.Instance.ShowMessage(currentDoor.lockedMessage, 3f);
+                UIMessageManager.Instance.ClearBottomInstruction();
+            }
+
+            GameQuestManager.Instance.OnAlexisDoorLocked();
+            return;
+        }
+
+        currentDoor.ToggleDoor();
+        currentDoor.PlayOpenSound();
     }
 }
