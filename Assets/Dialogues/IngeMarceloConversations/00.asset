@@ -20,4 +20,5 @@ MonoBehaviour:
   - speakerName: Inge Marcelo
     dialogue: "Lo primero ser\xE1 encontrar algo para que puedas ver mejor."
   - speakerName: Inge Marcelo
-    dialogue: Busca la linterna, creo que esta en DAEE, pero cuidado con los guardias.
+    dialogue: Busca la linterna, creo que esta en el bloque L, pero cuidado con los
+      guardias.
