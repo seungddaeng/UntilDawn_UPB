@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerInteraction : MonoBehaviour
 {
     public InputActionReference interactAction;
+    public DialogueManager dialogueManager;
     private NPCInteractable currentNPC;
 
     private void OnEnable()
@@ -23,10 +24,15 @@ public class PlayerInteraction : MonoBehaviour
         if (!interactAction.action.WasPressedThisFrame())
             return;
 
-        if (currentNPC == null || !currentNPC.CanInteract())
+        if (dialogueManager != null && dialogueManager.IsDialogueActive)
+        {
+            dialogueManager.NextLine();
             return;
-
-        currentNPC.Interact();
+        }
+        if (currentNPC != null && currentNPC.CanInteract())
+        {
+            currentNPC.Interact();
+        }
     }
 
     void DetectNPC()

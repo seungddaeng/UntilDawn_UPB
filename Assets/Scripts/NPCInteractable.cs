@@ -149,6 +149,11 @@ public class NPCInteractable : MonoBehaviour
 
     public bool CanInteract()
     {
+        if (dialogue != null && dialogueManagerSafe() && dialogueManagerSafe().IsDialogueActive)
+        {
+            return true;
+        }
+
         if (!isLookedAt || Time.time < hidePromptUntil)
         {
             return false;
@@ -164,5 +169,10 @@ public class NPCInteractable : MonoBehaviour
         }
 
         return true;
+    }
+
+    DialogueManager dialogueManagerSafe()
+    {
+        return dialogue != null ? dialogue.GetComponentInChildren<DialogueManager>() : null;
     }
 }

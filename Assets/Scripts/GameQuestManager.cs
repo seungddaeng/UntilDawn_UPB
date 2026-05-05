@@ -6,6 +6,8 @@ public class GameQuestManager : MonoBehaviour
 {
     public static GameQuestManager Instance;
 
+    public NPCDialogue marceloDialogue;
+
     private bool finalChaseStarted = false;
 
     private float lastMarceloInteractionTime = -999f;
@@ -115,7 +117,7 @@ public class GameQuestManager : MonoBehaviour
         {
             currentStep = QuestStep.FindFlashlight;
 
-            ShowMessage("Marcelo: Hola... ¿qué haces tan tarde? Necesitas algo para alumbrarte. Me parece haber visto una linterna en el bloque L y algunas baterías en los cursos.");
+            marceloDialogue.StartConversationByIndex(0);
             SetArrowTarget(flashlightTarget);
             return;
         }
@@ -124,7 +126,7 @@ public class GameQuestManager : MonoBehaviour
         {
             currentStep = QuestStep.TryAlexisDoor;
 
-            ShowMessage("Marcelo: Ok, ya tienes la linterna y las baterías. Puedes probar ir a la oficina de Alexis. Está en DAE, en la sección de FIA. Intenta abrir la puerta.");
+            marceloDialogue.StartConversationByIndex(1);
             SetArrowTarget(alexisOfficeTarget);
             return;
         }
@@ -133,7 +135,8 @@ public class GameQuestManager : MonoBehaviour
         {
             currentStep = QuestStep.FindKeys;
 
-            ShowMessage("Marcelo: ¡Cierto! Las llaves... hmmm, las guardan en la biblioteca. Búscalas ahí, pero cuidado, que no te atrapen.");
+
+            marceloDialogue.StartConversationByIndex(2); 
             SetArrowTarget(keysTarget);
 
             if (marceloObject != null)
@@ -144,7 +147,7 @@ public class GameQuestManager : MonoBehaviour
             return;
         }
 
-        ShowMessage("Marcelo ya te dijo todo lo que sabía. Sigue la flecha.");
+        ShowMessage("Marcelo ya te dijo todo lo que sabía. Ahora sigue la flecha.");
     }
 
     public void OnFlashlightCollected()
