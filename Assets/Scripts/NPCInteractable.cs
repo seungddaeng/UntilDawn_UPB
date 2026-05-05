@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -25,6 +26,11 @@ public class NPCInteractable : MonoBehaviour
     [Header("Control de mensaje")]
     public float hidePromptAfterInteractTime = 4f;
     private float hidePromptUntil = 0f;
+
+    [SerializeField] bool disappearAfterDialogue = false;
+    [SerializeField] float disappearDelay = 0.5f;
+
+    private bool waitingToDisappear = false;
 
     private void Awake()
     {
@@ -171,8 +177,37 @@ public class NPCInteractable : MonoBehaviour
         return true;
     }
 
+    public void MarkToDisappearAfterDialogue()
+    {
+        disappearAfterDialogue = true;
+    }
+
     DialogueManager dialogueManagerSafe()
     {
         return dialogue != null ? dialogue.GetComponentInChildren<DialogueManager>() : null;
+    }
+
+    private void LateUpdate()
+    {
+        if (!disappearAfterDialogue || waitingToDisappear)
+            return;
+
+        DialogueManager dm = dialogueManagerSafe();
+
+        if (dm == null)
+            return;
+
+        if (!dm.IsDialogueActive && !isLookedAt)
+        {
+            StartCoroutine(DisappearCoroutine());
+        }
+    }
+
+    IEnumerator DisappearCoroutine()
+    {
+        waitingToDisappear = true;
+        yield return new WaitForSeconds(disappearDelay);
+
+        gameObject.SetActive(false);
     }
 }

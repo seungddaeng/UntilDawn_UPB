@@ -139,10 +139,7 @@ public class GameQuestManager : MonoBehaviour
             marceloDialogue.StartConversationByIndex(2); 
             SetArrowTarget(keysTarget);
 
-            if (marceloObject != null)
-            {
-                marceloObject.SetActive(false);
-            }
+            marceloObject.GetComponent<NPCInteractable>().MarkToDisappearAfterDialogue();
 
             return;
         }
