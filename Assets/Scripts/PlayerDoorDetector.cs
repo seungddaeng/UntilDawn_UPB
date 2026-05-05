@@ -5,6 +5,7 @@ public class PlayerDoorDetector : MonoBehaviour
     [SerializeField] float interactRange = 5f;
 
     private DoorInteraction_ currentDoor;
+    private bool wasShowingDoorPrompt = false;
 
     private void Update()
     {
@@ -30,6 +31,7 @@ public class PlayerDoorDetector : MonoBehaviour
             if (door != null)
             {
                 currentDoor = door;
+                wasShowingDoorPrompt = true;
 
                 if (UIMessageManager.Instance != null)
                 {
@@ -40,9 +42,14 @@ public class PlayerDoorDetector : MonoBehaviour
             }
         }
 
-        if (UIMessageManager.Instance != null)
+        if (wasShowingDoorPrompt)
         {
-            UIMessageManager.Instance.ClearBottomInstruction();
+            wasShowingDoorPrompt = false;
+
+            if (UIMessageManager.Instance != null)
+            {
+                UIMessageManager.Instance.ClearBottomInstruction();
+            }
         }
     }
 

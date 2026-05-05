@@ -303,7 +303,7 @@ public class GameQuestManager : MonoBehaviour
         hasKeys = false;
         currentStep = QuestStep.EscapeCampus;
 
-        ShowMessage("Corre. Sal del campus.");
+        ShowMessage("Llaves devueltas. ¡Que no te vean! Corre, sal del campus.", 3f);
         SetArrowTarget(campusExitTarget);
 
         StartFinalChase();
