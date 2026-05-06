@@ -1,6 +1,7 @@
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class GameQuestManager : MonoBehaviour
 {
@@ -59,6 +60,7 @@ public class GameQuestManager : MonoBehaviour
 
     [Header("Escenas")]
     public string winCinematicSceneName = "WinCinematic";
+    public string loseCinematicSceneName = "LoseCinematic";
 
     [Header("Estado del jugador")]
     public bool hasKeys = false;
@@ -68,6 +70,14 @@ public class GameQuestManager : MonoBehaviour
     [Header("Baterías")]
     public int requiredBatteries = 3;
     public int batteriesCollected = 0;
+
+    [Header("Final Timer")]
+    public float escapeTime = 90f; // 1:30
+    public TMP_Text countdownText;
+    public GameObject countdownCanvas;
+
+    private float currentTime;
+    private bool countdownActive;
 
     private void Awake()
     {
@@ -88,6 +98,20 @@ public class GameQuestManager : MonoBehaviour
                 CorrectExam();
             }
         }
+
+        if (!countdownActive)
+            return;
+
+        currentTime -= Time.deltaTime;
+
+        if (currentTime <= 0f)
+        {
+            currentTime = 0f;
+            LoseGame();
+            return;
+        }
+
+        UpdateCountdownUI();
     }
 
     private void StartMission()
@@ -268,6 +292,8 @@ public class GameQuestManager : MonoBehaviour
         {
             StoryTimeManager.Instance.TriggerDawn();
         }
+
+        StartEscapeCountdown();
     }
 
     public void OnExamCollected()
@@ -280,7 +306,7 @@ public class GameQuestManager : MonoBehaviour
         hasExam = true;
         currentStep = QuestStep.CorrectExam;
 
-        ShowMessage("Examen conseguido, corrígelo. Presiona G para corregir.");
+        ShowMessage("Examen conseguido, corrígelo. Presiona G para corregir. ¡Cuidado con el tiempo!");
         SetArrowTarget(null);
     }
 
@@ -341,6 +367,11 @@ public class GameQuestManager : MonoBehaviour
             return;
         }
 
+        countdownActive = false;
+
+        if (countdownCanvas != null)
+            countdownCanvas.SetActive(false);
+
         currentStep = QuestStep.Win;
         SceneManager.LoadScene(winCinematicSceneName);
     }
@@ -375,5 +406,36 @@ public class GameQuestManager : MonoBehaviour
             UIMessageManager.Instance.ShowMessage(message, duration);
             UIMessageManager.Instance.ClearBottomInstruction();
         }
+    }
+    private void StartEscapeCountdown()
+    {
+        currentTime = escapeTime;
+        countdownActive = true;
+
+        if (countdownCanvas != null)
+            countdownCanvas.SetActive(true);
+
+        UpdateCountdownUI();
+    }
+
+    private void UpdateCountdownUI()
+    {
+        if (countdownText == null)
+            return;
+
+        int minutes = Mathf.FloorToInt(currentTime / 60f);
+        int seconds = Mathf.FloorToInt(currentTime % 60f);
+
+        countdownText.text = $"{minutes:00}:{seconds:00}";
+    }
+
+    private void LoseGame()
+    {
+        countdownActive = false;
+
+        if (countdownCanvas != null)
+            countdownCanvas.SetActive(false);
+
+        SceneManager.LoadScene(loseCinematicSceneName);
     }
 }
