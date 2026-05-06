@@ -16,9 +16,7 @@ public class GuardPatrol : MonoBehaviour
     public Transform playerCamera;
 
     public float proximityDetectionRange = 7f;
-
     public float visionDetectionRange = 12f;
-
     public float fieldOfView = 110f;
 
     [Header("Chase")]
@@ -33,6 +31,10 @@ public class GuardPatrol : MonoBehaviour
     public Light flashlight;
     public AudioSource alertAudio;
 
+    [Header("Final Chase Rally")]
+    public float rallySpeed = 4f;
+    public float rallyArrivalDistance = 1.5f;
+
     private NavMeshAgent agent;
     private int currentPointIndex = 0;
     private float waitTimer;
@@ -44,6 +46,10 @@ public class GuardPatrol : MonoBehaviour
     private int lookDirection = 1;
 
     private bool finalChaseMode = false;
+
+    private bool rallyBeforeChaseMode = false;
+    private Transform rallyTarget;
+    private float storedFinalChaseSpeed;
 
     void Start()
     {
@@ -60,9 +66,19 @@ public class GuardPatrol : MonoBehaviour
     void Update()
     {
         if (player == null) return;
-        if (patrolPoints.Length == 0) return;
+        if (agent == null) return;
 
-        CheckPlayerDetection();
+        if (rallyBeforeChaseMode)
+        {
+            MoveToRallyPointBeforeChase();
+            return;
+        }
+
+        if (!finalChaseMode)
+        {
+            if (patrolPoints.Length == 0) return;
+            CheckPlayerDetection();
+        }
 
         if (isAlerted)
             ChaseMode();
@@ -209,26 +225,77 @@ public class GuardPatrol : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
+    public void MoveToRallyPointThenChase(Transform rallyPoint, float newChaseSpeed)
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, proximityDetectionRange);
+        if (agent == null)
+        {
+            agent = GetComponent<NavMeshAgent>();
+        }
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, visionDetectionRange);
+        if (agent == null)
+        {
+            return;
+        }
 
-        Vector3 left = Quaternion.Euler(0, -fieldOfView / 2f, 0) * transform.forward;
-        Vector3 right = Quaternion.Euler(0, fieldOfView / 2f, 0) * transform.forward;
+        rallyTarget = rallyPoint;
+        storedFinalChaseSpeed = newChaseSpeed;
 
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(transform.position, left * visionDetectionRange);
-        Gizmos.DrawRay(transform.position, right * visionDetectionRange);
+        finalChaseMode = false;
+        rallyBeforeChaseMode = true;
+        isAlerted = false;
+        isWaiting = false;
+        isLookingAround = false;
+
+        agent.isStopped = false;
+        agent.speed = rallySpeed;
+
+        if (flashlight != null)
+        {
+            flashlight.enabled = false;
+        }
+
+        if (alertAudio != null && alertAudio.isPlaying)
+        {
+            alertAudio.Stop();
+        }
+
+        if (rallyTarget != null)
+        {
+            agent.SetDestination(rallyTarget.position);
+        }
+        else
+        {
+            ForceFinalChase(newChaseSpeed);
+        }
+    }
+
+    private void MoveToRallyPointBeforeChase()
+    {
+        if (rallyTarget == null)
+        {
+            rallyBeforeChaseMode = false;
+            ForceFinalChase(storedFinalChaseSpeed);
+            return;
+        }
+
+        agent.isStopped = false;
+        agent.speed = rallySpeed;
+        agent.SetDestination(rallyTarget.position);
+
+        if (!agent.pathPending && agent.remainingDistance <= rallyArrivalDistance)
+        {
+            rallyBeforeChaseMode = false;
+            ForceFinalChase(storedFinalChaseSpeed);
+        }
     }
 
     public void ForceFinalChase(float newChaseSpeed)
     {
+        rallyBeforeChaseMode = false;
         finalChaseMode = true;
         isAlerted = true;
+        isWaiting = false;
+        isLookingAround = false;
 
         chaseSpeed = newChaseSpeed;
         losePlayerDistance = 999f;
@@ -248,4 +315,26 @@ public class GuardPatrol : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, proximityDetectionRange);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, visionDetectionRange);
+
+        Vector3 left = Quaternion.Euler(0, -fieldOfView / 2f, 0) * transform.forward;
+        Vector3 right = Quaternion.Euler(0, fieldOfView / 2f, 0) * transform.forward;
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(transform.position, left * visionDetectionRange);
+        Gizmos.DrawRay(transform.position, right * visionDetectionRange);
+
+        Gizmos.color = Color.magenta;
+        if (rallyTarget != null)
+        {
+            Gizmos.DrawSphere(rallyTarget.position, 0.4f);
+            Gizmos.DrawLine(transform.position, rallyTarget.position);
+        }
+    }
 }
