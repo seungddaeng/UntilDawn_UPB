@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d74358f998d5974596e74ef5e1963b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverController
-  gameSceneName: SampleScene
+  gameSceneName: PrincipalScene
   menuSceneName: MainMenu
 --- !u!1 &290320883
 GameObject:
@@ -478,7 +478,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 1
 --- !u!114 &516568467
 MonoBehaviour:
   m_ObjectHideFlags: 0
