@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -56,7 +57,9 @@ public class GameQuestManager : MonoBehaviour
 
     [Header("Guardias")]
     public GuardPatrol[] guards;
+    public Transform[] guardRallyPoints;
     public float finalChaseSpeed = 7f;
+    public float rallyDelayBeforeChase = 5f;
 
     [Header("Escenas")]
     public string winCinematicSceneName = "WinCinematic";
@@ -72,7 +75,7 @@ public class GameQuestManager : MonoBehaviour
     public int batteriesCollected = 0;
 
     [Header("Final Timer")]
-    public float escapeTime = 90f; // 1:30
+    public float escapeTime = 90f;
     public TMP_Text countdownText;
     public GameObject countdownCanvas;
 
@@ -159,8 +162,7 @@ public class GameQuestManager : MonoBehaviour
         {
             currentStep = QuestStep.FindKeys;
 
-
-            marceloDialogue.StartConversationByIndex(2); 
+            marceloDialogue.StartConversationByIndex(2);
             SetArrowTarget(keysTarget);
 
             marceloObject.GetComponent<NPCInteractable>().MarkToDisappearAfterDialogue();
@@ -344,12 +346,38 @@ public class GameQuestManager : MonoBehaviour
 
         finalChaseStarted = true;
 
-        ShowMessage("¡Tú puedes! ¡¡¡CORRE!!!");
+        ShowMessage("¡Tú puedes! ¡¡¡CORRE!!!", 3f);
 
-        if (guards == null)
+        StartCoroutine(StartRallyThenFinalChase());
+    }
+
+    private IEnumerator StartRallyThenFinalChase()
+    {
+        if (guards == null || guards.Length == 0)
         {
-            return;
+            yield break;
         }
+
+        for (int i = 0; i < guards.Length; i++)
+        {
+            GuardPatrol guard = guards[i];
+
+            if (guard == null)
+            {
+                continue;
+            }
+
+            Transform rallyPoint = null;
+
+            if (guardRallyPoints != null && i < guardRallyPoints.Length)
+            {
+                rallyPoint = guardRallyPoints[i];
+            }
+
+            guard.MoveToRallyPointThenChase(rallyPoint, finalChaseSpeed);
+        }
+
+        yield return new WaitForSeconds(rallyDelayBeforeChase);
 
         foreach (GuardPatrol guard in guards)
         {
@@ -407,6 +435,7 @@ public class GameQuestManager : MonoBehaviour
             UIMessageManager.Instance.ClearBottomInstruction();
         }
     }
+
     private void StartEscapeCountdown()
     {
         currentTime = escapeTime;
