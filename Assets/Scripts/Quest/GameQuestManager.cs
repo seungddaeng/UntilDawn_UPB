@@ -127,7 +127,7 @@ public class GameQuestManager : MonoBehaviour
         finalChaseStarted = false;
         batteriesCollected = 0;
 
-        ShowMessage("¡Que no te atrapen! Sigue la flecha y busca al Inge Marcelo.");
+        ShowMessage("¡Que no te atrapen! Sigue la flecha y busca al Inge Marcelo.", 5f);
         SetArrowTarget(marceloTarget);
     }
 
