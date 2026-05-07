@@ -3,8 +3,18 @@ using UnityEngine.SceneManagement;
 
 public class SkipToNextScene : MonoBehaviour
 {
-    public void SkipCinematic()
+    public void SkipIntroCinematic()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene("PrincipalScene");
+    }
+
+    public void SkipWinCinematic()
+    {
+        SceneManager.LoadScene("WinScreen");
+    }
+
+    public void SkipLoseCinematic()
+    {
+        SceneManager.LoadScene("GameOver");
     }
 }

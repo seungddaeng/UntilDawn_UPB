@@ -505,7 +505,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1554019686}
         m_TargetAssemblyTypeName: SkipToNextScene, Assembly-CSharp
-        m_MethodName: SkipCinematic
+        m_MethodName: SkipLoseCinematic
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
