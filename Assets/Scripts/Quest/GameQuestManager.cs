@@ -251,7 +251,7 @@ public class GameQuestManager : MonoBehaviour
             return;
         }
 
-        ShowMessage("No tienes la llave de Alexis.");
+        ShowMessage("Esta no es la oficina de Alexis.");
     }
 
     public void OnKeysCollected()
