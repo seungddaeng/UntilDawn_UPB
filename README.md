@@ -9,7 +9,7 @@
 Las siguientes imágenes muestran algunas comparaciones entre las referencias reales del campus UPB y su recreación dentro del videojuego
 
 **Entrada al campus UPB**
-![Caseata UPB](Screenshots/Image3.png)
+![Caseta UPB](Screenshots/Image3.png)
 
 **Edificio DAAE**
 ![DAAE](Screenshots/Image1.png)
@@ -29,7 +29,7 @@ Las siguientes imágenes muestran algunas comparaciones entre las referencias re
 
 ## 1. Descripción general
 
-El jugador debe explorar el campus intentando encontrar sus examen y corregirlo sin que lo encuentren los guardias y antes de que amanezca y Alexis llegue al campus, para esto debe interactuar con objetos clave, progresar mediante un sistema de misiones, dialogar con NPCs y evadir guardias con patrullaje automático.
+El jugador es un estudiante que debe explorar el campus intentando encontrar las herramientas necesarias para llegar a su examen y corregirlo. Debe esquivar a los guardias y completar su plan antes de que amanezca y Alexis llegue al campus, para esto debe interactuar con objetos clave, progresar mediante un sistema de misiones, dialogar con NPCs y evadir guardias con patrullaje automático.
 
 El proyecto está centrado en:
 
@@ -288,7 +288,7 @@ Controlados por `GameFlowManager.cs`, `GameOverController.cs` y `WinScreenContro
 
 ---
 
-## 16. Créditos
+## 15. Créditos
 Un recorrido por el campus de la UPB, recreado con dedicacion y muchisimo cariño :D
 
 **Desarrollado por:**
