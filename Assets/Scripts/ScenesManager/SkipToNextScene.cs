@@ -5,7 +5,7 @@ public class SkipToNextScene : MonoBehaviour
 {
     public void SkipIntroCinematic()
     {
-        SceneManager.LoadScene("PrincipalScene");
+        SceneManager.LoadScene("Instructions");
     }
 
     public void SkipWinCinematic()
